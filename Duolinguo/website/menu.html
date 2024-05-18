@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Duolingo</title>
+    <link rel="stylesheet" href="menu.css"> <!-- Lien vers le fichier CSS -->
+</head>
+<body>
+    
+    <h1>Duolingo vocabulary test</h1>
+
+    <button id="playButton">Play</button>
+    
+    <div id="languageContainer" class="container" style="display:none;">
+        <label class="select-label">Language to train :</label>
+        <div class="select-container">
+            <select id="languageSelect" class="select">
+                <option value="English">English</option>
+                <option value="Ukrainian">Ukrainian</option>
+            </select>
+        </div>
+    </div>
+    
+    <div id="directionContainer" class="container" style="display:none;">
+        <label class="select-label">In which direction :</label>
+        <div class="select-container">
+            <select id="directionSelect" class="select">
+                <!-- Options will be added dynamically -->
+            </select>
+        </div>
+    </div>
+    
+    <div id="numberOfQuestionsContainer" class="container" style="display:none;">
+        <label id="numberOfQuestionsLabel">Number of questions:</label>
+        <div id="numberOfQuestionsSelectContainer">
+            <select id="numberOfQuestionsSelect">
+                <!-- Les options seront ajoutées dynamiquement par JavaScript -->
+            </select>
+        </div>
+    </div>
+
+    <!-- Lien vers le fichier JavaScript -->
+    <script src="menu.js"></script>
+</body>
+</html>

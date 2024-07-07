@@ -1,25 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 
-const GamePage = () => {
+const Game = () => {
 	const [languages, setLanguages] = useState<string[]>(["English", "Ukrainian"]);
-	const [directions, setDirections] = useState<string[]>([]);
+	const [directions, setDirections] = useState<string[]>(["Ukrainian => English", "English => French", "French => English"]);
 	const [selectedLanguage, setSelectedLanguage] = useState<string>("");
 	const [selectedDirection, setSelectedDirection] = useState<string>("");
-	const [selectedNumberOfQuestions, setSelectedNumberOfQuestions] = useState<number | string>(0);
+	const [selectedNumberOfQuestions, setSelectedNumberOfQuestions] = useState<number | string>("");
 	const [repeats, setRepeats] = useState<string>("");
 	const [wrongRepeats, setWrongRepeats] = useState<string>("");
 	const [repeatError, setRepeatError] = useState<boolean>(false);
 	const [wrongRepeatError, setWrongRepeatError] = useState<boolean>(false);
 
 	const navigate = useNavigate();
-
-	useEffect(() => {
-		// Simulate fetching data for directions
-		const mockDirections = ["Ukrainian => English", "English => French", "French => English"];
-
-		setDirections(mockDirections);
-	}, []);
 
 	const getNumberOfQuestionsOptions = () => {
 		if (selectedLanguage === "English") {
@@ -32,12 +25,11 @@ const GamePage = () => {
 
 	const handlePlayButtonClick = () => {
 		// Check if all conditions are met before navigating
-		if (selectedLanguage && selectedDirection && selectedNumberOfQuestions !== 0 && !repeatError && !wrongRepeatError) {
+		if (selectedLanguage && selectedDirection && selectedNumberOfQuestions && repeats && wrongRepeats) {
 			// Construct the URL with necessary parameters
 			const queryParams = `?language=${selectedLanguage}&direction=${selectedDirection}&numberOfQuestions=${selectedNumberOfQuestions}&repeats=${repeats}&wrongRepeats=${wrongRepeats}`;
-
 			// Navigate to the result page with parameters
-			navigate(`/result${queryParams}`);
+			navigate(`/game${queryParams}`);
 		}
 	};
 
@@ -129,10 +121,10 @@ const GamePage = () => {
 								!selectedLanguage ? "hover:border-red-500 hover:bg-red-100" : "border-gray-300"
 							}`}
 							value={selectedNumberOfQuestions}
-							onChange={(e) => setSelectedNumberOfQuestions(Number(e.target.value))}
+							onChange={(e) => setSelectedNumberOfQuestions(e.target.value)}
 							disabled={!selectedLanguage}
 						>
-							<option value={0}>Select number of questions</option>
+							<option value="">Select number of questions</option>
 							{getNumberOfQuestionsOptions().map((num, index) => (
 								<option key={index} value={num}>
 									{num}
@@ -178,7 +170,7 @@ const GamePage = () => {
 					id="playButton"
 					className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 w-full"
 					onClick={handlePlayButtonClick}
-					disabled={!selectedLanguage || !selectedDirection || selectedNumberOfQuestions === 0 || repeatError || wrongRepeatError}
+					disabled={!selectedLanguage || !selectedDirection || !selectedNumberOfQuestions || !repeats || !wrongRepeats}
 				>
 					Play
 				</button>
@@ -187,4 +179,4 @@ const GamePage = () => {
 	);
 };
 
-export default GamePage;
+export default Game;

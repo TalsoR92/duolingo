@@ -1,124 +1,102 @@
-import React, { useEffect, useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { getRandomWordsFromFile, myLevenshtein, isEqualWithOneSwitchMax } from "./tools"; // Assure-toi que le chemin vers tes utilitaires est correct
 
-interface WordMap {
-	[word: string]: string;
-}
+const Game: React.FC = () => {
+	const [wordsMap, setWordsMap] = useState<{ [key: string]: string }>({});
+	const [scoreWords, setScoreWords] = useState<{ [key: string]: number }>({});
+	const [oldWords, setOldWords] = useState<{ [key: string]: string }>({});
+	const [gameStarted, setGameStarted] = useState(false);
 
-const ResultPage: React.FC = () => {
 	const location = useLocation();
-	const searchParams = new URLSearchParams(location.search);
 
-	const language = searchParams.get("language") || "";
-	const direction = searchParams.get("direction") || "";
-	const numberOfQuestions = parseInt(searchParams.get("numberOfQuestions") || "0", 10);
-	const repeats = parseInt(searchParams.get("repeats") || "1", 10); // Default to 1 if not provided
-	const wrongRepeats = parseInt(searchParams.get("wrongRepeats") || "1", 10); // Default to 1 if not provided
+	useEffect(() => {
+		const queryParams = new URLSearchParams(location.search);
+		const language = queryParams.get("language")!;
+		const direction = queryParams.get("direction")!;
+		const numQuestions = parseInt(queryParams.get("numberOfQuestions")!);
+		const numRepeats = parseInt(queryParams.get("repeats")!);
+		const numWrongRepeats = parseInt(queryParams.get("wrongRepeats")!);
 
-	const [wordsMap, setWordsMap] = useState<WordMap>({});
-	const [scoreWords, setScoreWords] = useState<{ [word: string]: number }>({});
-	const [oldWords, setOldWords] = useState<WordMap>({});
-	const [currentWord, setCurrentWord] = useState<string>("");
-	const [userAnswer, setUserAnswer] = useState<string>("");
-	const [correctAnswer, setCorrectAnswer] = useState<string>("");
+		async function fetchRandomWords() {
+			try {
+				const randomWords = await getRandomWordsFromFile(language, numQuestions);
+				const initialScore = numRepeats;
 
-	// Simulated vocabulary data
-	const mockVocabulary: WordMap = {
-		Hello: "Bonjour",
-		Goodbye: "Au revoir",
-		Thankyou: "Merci",
-		Yes: "Oui",
-		No: "Non",
-	};
+				const wordsMapInit: { [key: string]: string } = {};
+				const scoreWordsInit: { [key: string]: number } = {};
 
-	// Function to start the game
-	const startGame = () => {
-		let vocabCopy: WordMap = { ...mockVocabulary };
-		let wordsMapCopy: WordMap = {};
-		let scoreWordsCopy: { [word: string]: number } = {};
+				randomWords.forEach((word) => {
+					wordsMapInit[word.word] = word.translation;
+					scoreWordsInit[word.word] = initialScore;
+				});
 
-		// Choose random words from vocabulary based on numberOfQuestions
-		for (let i = 0; i < numberOfQuestions; i++) {
-			const randomWord = Object.keys(vocabCopy)[Math.floor(Math.random() * Object.keys(vocabCopy).length)];
-			wordsMapCopy[randomWord] = vocabCopy[randomWord];
-			scoreWordsCopy[randomWord] = repeats;
-			delete vocabCopy[randomWord];
+				setWordsMap(wordsMapInit);
+				setScoreWords(scoreWordsInit);
+				setGameStarted(true);
+			} catch (error) {
+				console.error("Error fetching random words:", error);
+				// Handle error appropriately (e.g., show error message)
+			}
 		}
 
-		setWordsMap(wordsMapCopy);
-		setScoreWords(scoreWordsCopy);
-	};
+		fetchRandomWords();
+	}, [location.search]);
 
-	// Function to handle user answer submission
-	const handleSubmitAnswer = () => {
-		if (userAnswer.trim().length === 0) {
-			alert("Please enter an answer.");
-			return;
-		}
+	const handleAnswer = (word: string, userAnswer: string) => {
+		const answer = wordsMap[word];
+		const similarity = myLevenshtein(userAnswer, answer);
 
-		const currentAnswer = wordsMap[currentWord];
-		const similarity = calculateSimilarity(userAnswer, currentAnswer);
+		if (similarity > 0.8 || isEqualWithOneSwitchMax(userAnswer, answer)) {
+			let newScoreWords = { ...scoreWords };
+			newScoreWords[word] -= 1;
 
-		if (similarity > 0.8) {
-			setScoreWords((prevScoreWords) => ({
-				...prevScoreWords,
-				[currentWord]: prevScoreWords[currentWord] - 1,
-			}));
+			if (newScoreWords[word] === 0) {
+				let newOldWords = { ...oldWords };
+				newOldWords[word] = answer;
+				setOldWords(newOldWords);
 
-			if (scoreWords[currentWord] === 0) {
-				setOldWords((prevOldWords) => ({
-					...prevOldWords,
-					[currentWord]: currentAnswer,
-				}));
-				delete wordsMap[currentWord];
+				let newWordsMap = { ...wordsMap };
+				delete newWordsMap[word];
+				setWordsMap(newWordsMap);
 			}
 
-			setCorrectAnswer("");
+			setScoreWords(newScoreWords);
+			console.log("\nCorrect!\n");
+			if (answer.includes(":") || similarity !== 1) {
+				console.log(`These are all the answers:\n${answer}\n`);
+			}
 		} else {
-			setScoreWords((prevScoreWords) => ({
-				...prevScoreWords,
-				[currentWord]: wrongRepeats,
-			}));
+			let newScoreWords = { ...scoreWords };
+			newScoreWords[word] = parseInt(queryParams.get("wrongRepeats") || "0");
+			setScoreWords(newScoreWords);
 
-			setCorrectAnswer(currentAnswer);
+			console.log(`\nWrong! The correct answer is: ${answer}\n`);
 		}
-
-		setUserAnswer("");
 	};
 
+	if (!gameStarted) {
+		return <div>Loading...</div>;
+	}
 
-	// Effect to start the game when component mounts
-	useEffect(() => {
-		startGame();
-	}, []);
+	const currentWord = Object.keys(wordsMap)[0];
 
-	// Render results and game UI
 	return (
 		<div>
-			<div>
-				{Object.keys(wordsMap).length > 0 && (
-					<>
-						<h2>Current Word: {currentWord}</h2>
-						<p>Translate this word: {wordsMap[currentWord]}</p>
-						<input type="text" value={userAnswer} onChange={(e) => setUserAnswer(e.target.value)} />
-						<button onClick={handleSubmitAnswer}>Submit Answer</button>
-						{correctAnswer && <p>Correct Answer: {correctAnswer}</p>}
-					</>
-				)}
-				{Object.keys(oldWords).length > 0 && (
-					<>
-						<h2>Old Words</h2>
-						{Object.keys(oldWords).map((word) => (
-							<div key={word}>
-								<p>Word: {word}</p>
-								<p>Translation: {oldWords[word]}</p>
-							</div>
-						))}
-					</>
-				)}
-			</div>
+			<h1>Vocabulary Quiz</h1>
+			{Object.keys(wordsMap).length > 0 ? (
+				<div>
+					<p>Translate: {currentWord}</p>
+					<input type="text" id="userInput" />
+					<button onClick={() => handleAnswer(currentWord, (document.getElementById("userInput") as HTMLInputElement).value)}>
+						Submit Answer
+					</button>
+				</div>
+			) : (
+				<p>Game Over! You've finished all questions.</p>
+			)}
 		</div>
 	);
 };
 
-export default ResultPage;
+export default Game;

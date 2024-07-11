@@ -85,7 +85,7 @@ export async function getRandomWordsFromFile(language: string, count: number): P
 
 	try {
 		// Read the JSON file
-		const words = await readJsonFile("../JSON/" + jsonFilePath);
+		const words = await readJsonFile("../public/JSON/" + jsonFilePath);
 
 		// Check if the requested count is greater than the number of available words
 		if (count > words.length) {

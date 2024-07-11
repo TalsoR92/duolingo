@@ -55,25 +55,25 @@ const Game: React.FC = () => {
 	const handleAnswer = (word: string, userAnswer: string) => {
 		const answer = wordsMap[word];
 		const similarity = myLevenshtein(userAnswer, answer);
-	
+
 		if (similarity > 0.8 || isEqualWithOneSwitchMax(userAnswer, answer)) {
 			let newScoreWords = { ...scoreWords };
 			newScoreWords[word] -= 1;
-	
+
 			if (newScoreWords[word] === 0) {
 				let newOldWords = { ...oldWords };
 				newOldWords[word] = answer;
 				setOldWords(newOldWords);
-	
+
 				// Check if this was the last repeat needed for validation
-				const validatedWordsCount = Object.values(newScoreWords).filter(score => score === 0).length;
+				const validatedWordsCount = Object.values(newScoreWords).filter((score) => score === 0).length;
 				if (validatedWordsCount === numQuestions - 1) {
 					setNumRepeats(numWrongRepeats); // Update numRepeats to numWrongRepeats
 				}
 			} else {
 				setScoreWords(newScoreWords);
 			}
-	
+
 			setResultMessage(`Correct! The answer is: ${answer}`);
 			setResultClass("text-green-500");
 			if (answer.includes(":") || similarity !== 1) {
@@ -83,24 +83,23 @@ const Game: React.FC = () => {
 			let newScoreWords = { ...scoreWords };
 			newScoreWords[word] = numWrongRepeats;
 			setScoreWords(newScoreWords);
-	
+
 			setResultMessage(`Incorrect! The correct answer is: ${answer}`);
 			setResultClass("text-red-500");
-	
+
 			// Check if this was the last repeat needed for validation
-			const validatedWordsCount = Object.values(newScoreWords).filter(score => score === 0).length;
+			const validatedWordsCount = Object.values(newScoreWords).filter((score) => score === 0).length;
 			if (validatedWordsCount === numQuestions - 1) {
 				setNumRepeats(numWrongRepeats); // Update numRepeats to numWrongRepeats
 			}
 		}
-	
+
 		let newWordsMap = { ...wordsMap };
 		delete newWordsMap[word];
 		setWordsMap(newWordsMap);
-	
+
 		(document.getElementById("userInput") as HTMLInputElement).value = "";
 	};
-	
 
 	const handleKeyPress = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter") {

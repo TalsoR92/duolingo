@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const Game = () => {
-	const [languages, setLanguages] = useState<string[]>(["English", "Ukrainian"]);
-	const [directions, setDirections] = useState<string[]>(["Ukrainian => English", "English => French", "French => English"]);
+	const [languages] = useState<string[]>(["English", "Ukrainian"]);
+	const [directions] = useState<string[]>(["Ukrainian => English", "English => French", "French => English"]);
 	const [selectedLanguage, setSelectedLanguage] = useState<string>("");
 	const [selectedDirection, setSelectedDirection] = useState<string>("");
 	const [selectedNumberOfQuestions, setSelectedNumberOfQuestions] = useState<number | string>("");

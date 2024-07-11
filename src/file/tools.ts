@@ -1,6 +1,10 @@
-import { levenshteinEditDistance as levenshtein2 } from "levenshtein-edit-distance";
 import unidecode from "unidecode";
 import levenshtein from 'fast-levenshtein'; // Assure-toi d'importer la bibliothèque de Levenshtein
+
+interface WordEntry {
+    word: string;
+    translation: string;
+}
 
 // Function to check if two strings can be made equal by swapping at most one pair of characters
 export const isEqualWithOneSwitchMax = (s1: string, s2: string): boolean => {

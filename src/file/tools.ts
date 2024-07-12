@@ -74,10 +74,10 @@ export async function getRandomWordsFromFile(language: string, count: number): P
 	// Sélection du fichier JSON en fonction de la langue
 	switch (language) {
 		case "English":
-			jsonFilePath = "vocab_en-fr.json";
+			jsonFilePath = "/duolingo/JSON/vocab_en-fr.json"; // Chemin relatif à la base URL
 			break;
 		case "Ukrainian":
-			jsonFilePath = "vocab_uk-fr.json";
+			jsonFilePath = "/duolingo/JSON/vocab_uk-fr.json"; // Chemin relatif à la base URL
 			break;
 		default:
 			throw new Error(`Unsupported language: ${language}.`);
@@ -85,7 +85,7 @@ export async function getRandomWordsFromFile(language: string, count: number): P
 
 	try {
 		// Read the JSON file
-		const words = await readJsonFile("/duolingo/public/JSON/" + jsonFilePath);
+		const words = await readJsonFile(jsonFilePath);
 
 		// Check if the requested count is greater than the number of available words
 		if (count > words.length) {

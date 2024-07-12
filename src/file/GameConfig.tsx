@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { getCookie, setCookie } from "../utils/cookies"; // Adjust the path accordingly
 
 const Game = () => {
 	const [languages] = useState<string[]>(["English", "Ukrainian"]);
@@ -14,24 +15,52 @@ const Game = () => {
 
 	const navigate = useNavigate();
 
-	const getNumberOfQuestionsOptions = () => {
-		if (selectedLanguage === "English") {
-			return [5, 10, 20, 30, 50, 100, 200, 300, 500, 1000, 2000, 3000, "All"];
-		} else if (selectedLanguage === "Ukrainian") {
-			return [5, 10, 20, 30, 50, 100, 200, "All"];
-		}
-		return [];
-	};
+	useEffect(() => {
+        console.log("Running useEffect for initial state");
+        const savedLanguage = getCookie("selectedLanguage");
+        const savedDirection = getCookie("selectedDirection");
+        const savedNumberOfQuestions = getCookie("selectedNumberOfQuestions");
+        const savedRepeats = getCookie("repeats");
+        const savedWrongRepeats = getCookie("wrongRepeats");
 
-	const handlePlayButtonClick = () => {
-		// Check if all conditions are met before navigating
-		if (selectedLanguage && selectedDirection && selectedNumberOfQuestions && repeats && wrongRepeats) {
-			// Construct the URL with necessary parameters
-			const queryParams = `?language=${selectedLanguage}&direction=${selectedDirection}&numberOfQuestions=${selectedNumberOfQuestions}&repeats=${repeats}&wrongRepeats=${wrongRepeats}`;
-			// Navigate to the result page with parameters
-			navigate(`/game${queryParams}`);
-		}
-	};
+        if (savedLanguage) setSelectedLanguage(savedLanguage);
+        if (savedDirection) setSelectedDirection(savedDirection);
+        if (savedNumberOfQuestions) setSelectedNumberOfQuestions(savedNumberOfQuestions);
+        if (savedRepeats) setRepeats(savedRepeats);
+        if (savedWrongRepeats) setWrongRepeats(savedWrongRepeats);
+    }, []);
+
+    const getNumberOfQuestionsOptions = () => {
+        console.log("Getting number of questions options");
+        if (selectedLanguage === "English") {
+            return [5, 10, 20, 30, 50, 100, 200, 300, 500, 1000, 2000, 3000, "All"];
+        } else if (selectedLanguage === "Ukrainian") {
+            return [5, 10, 20, 30, 50, 100, 200, "All"];
+        }
+        return [];
+    };
+
+    const handlePlayButtonClick = () => {
+        console.log("Play button clicked");
+        // Check if all conditions are met before navigating
+        if (selectedLanguage && selectedDirection && selectedNumberOfQuestions && repeats && wrongRepeats) {
+            console.log("All conditions met for navigation");
+            // Save values to cookies
+            setCookie("selectedLanguage", selectedLanguage);
+            setCookie("selectedDirection", selectedDirection);
+            setCookie("selectedNumberOfQuestions", String(selectedNumberOfQuestions));
+            setCookie("repeats", repeats);
+            setCookie("wrongRepeats", wrongRepeats);
+
+            // Construct the URL with necessary parameters
+            const queryParams = `?language=${selectedLanguage}&direction=${selectedDirection}&numberOfQuestions=${selectedNumberOfQuestions}&repeats=${repeats}&wrongRepeats=${wrongRepeats}`;
+            console.log("Navigating to", `/game${queryParams}`);
+            // Navigate to the result page with parameters
+            navigate(`/game${queryParams}`);
+        } else {
+            console.log("Conditions not met for navigation", { selectedLanguage, selectedDirection, selectedNumberOfQuestions, repeats, wrongRepeats });
+        }
+    };
 
 	const handleRepeatChange = (value: string) => {
 		if (/^\d+$/.test(value) && parseInt(value) <= 10) {

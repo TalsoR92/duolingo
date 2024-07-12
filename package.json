@@ -16,6 +16,7 @@
     "distance": "^1.0.0",
     "fast-levenshtein": "^3.0.0",
     "fs": "^0.0.1-security",
+    "js-cookie": "^3.0.5",
     "js-levenshtein": "^1.1.6",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 
 function Home() {
+  console.log("en sahhhh");
   return (
     <div className="flex flex-col items-center justify-start min-h-screen bg-gray-100">
       <header className="text-center mt-[10%]">

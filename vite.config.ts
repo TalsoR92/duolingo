@@ -8,5 +8,7 @@ export default defineConfig({
     rollupOptions: {
       external: ['/dist/assets/index-C4hwDUTq.js'], // Exemple d'externalisation
     },
+    outDir: 'dist',
+    assetsDir: 'assets',
   },
 });

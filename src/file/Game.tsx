@@ -9,7 +9,9 @@ const Game: React.FC = () => {
 	const [gameStarted, setGameStarted] = useState(false);
 	const [resultMessage, setResultMessage] = useState<string>("");
 	const [resultClass, setResultClass] = useState<string>("");
-
+	
+	const [isLoading, setIsLoading] = useState<boolean>(true); // Nouvel état pour le chargement
+	
 	const [numWrongRepeats, setNumWrongRepeats] = useState<number>(0);
 	const [currentWord, setCurrentWord] = useState<string>("");
 
@@ -37,9 +39,9 @@ const Game: React.FC = () => {
 				setScoreWords(scoreWordsInit);
 				setGameStarted(true);
 				setCurrentWord(randomWords[Math.floor(Math.random() * randomWords.length)].word);
+				setIsLoading(false); // Fin du chargement
 			} catch (error) {
 				console.error("Error fetching random words:", error);
-				// Handle error appropriately (e.g., show error message)
 			}
 		}
 
@@ -78,9 +80,7 @@ const Game: React.FC = () => {
 		setScoreWords(newScoreWords);
 		setWordsMap({ ...wordsMap });
 
-		if (Object.keys(newScoreWords).length === 0) {
-			setGameStarted(false);
-		} else {
+		if (Object.keys(newScoreWords).length != 0) {
 			let remainingWords = Object.keys(newScoreWords);
 			let nextWord = remainingWords[Math.floor(Math.random() * remainingWords.length)];
 			while (nextWord === word && remainingWords.length > 1) {
@@ -98,11 +98,11 @@ const Game: React.FC = () => {
 		}
 	};
 
-	if (!gameStarted && Object.keys(wordsMap).length > 0) {
+	if (isLoading) { // Afficher le message de chargement si isLoading est vrai
 		return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
 	}
 
-	if (Object.keys(wordsMap).length === 0 && !gameStarted) {
+	if (Object.keys(wordsMap).length === 0 && gameStarted) {
 		return <div className="flex items-center justify-center min-h-screen bg-gray-100">
 			<div className="p-6 bg-white rounded shadow-md text-center">
 				<p className="text-lg font-semibold">Game Over! You've finished all questions.</p>

@@ -5,7 +5,7 @@ import Game from "./file/Game";
 
 function App() {
 	return (
-		<Router>
+		<Router basename="/duolingo">
 			<Routes>
 				<Route path="/" element={<Home />} />
 				<Route path="/gameconfig" element={<GameConfig />} />

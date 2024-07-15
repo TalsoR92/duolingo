@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import { getRandomWordsFromFile, myLevenshtein, isEqualWithOneSwitchMax } from "../utils/tools"; // Assure-toi que le chemin vers tes utilitaires est correct
+import { getRandomWordsFromFile, myLevenshtein, isEqualWithOneSwitchMax } from "../utils/tools"; // Ensure the path to your utilities is correct
 
 const Game: React.FC = () => {
 	const [wordsMap, setWordsMap] = useState<{ [key: string]: string }>({});
@@ -10,7 +10,7 @@ const Game: React.FC = () => {
 	const [resultMessage, setResultMessage] = useState<string>("");
 	const [resultClass, setResultClass] = useState<string>("");
 	
-	const [isLoading, setIsLoading] = useState<boolean>(true); // Nouvel état pour le chargement
+	const [isLoading, setIsLoading] = useState<boolean>(true); // New state for loading
 	
 	const [numWrongRepeats, setNumWrongRepeats] = useState<number>(0);
 	const [currentWord, setCurrentWord] = useState<string>("");
@@ -26,20 +26,26 @@ const Game: React.FC = () => {
 			try {
 				const randomWords = await getRandomWordsFromFile(queryParams.get("language")!, parseInt(queryParams.get("numberOfQuestions")!));
 				const initialScore = parseInt(queryParams.get("repeats")!);
+				const direction = queryParams.get("direction");
 
 				const wordsMapInit: { [key: string]: string } = {};
 				const scoreWordsInit: { [key: string]: number } = {};
 
 				randomWords.forEach((word) => {
-					wordsMapInit[word.word] = word.translation;
-					scoreWordsInit[word.word] = initialScore;
+					if (direction === "French => English") {
+						wordsMapInit[word.translation] = word.word; // Reversing direction
+						scoreWordsInit[word.translation] = initialScore;
+					} else {
+						wordsMapInit[word.word] = word.translation;
+						scoreWordsInit[word.word] = initialScore;
+					}
 				});
 
 				setWordsMap(wordsMapInit);
 				setScoreWords(scoreWordsInit);
 				setGameStarted(true);
-				setCurrentWord(randomWords[Math.floor(Math.random() * randomWords.length)].word);
-				setIsLoading(false); // Fin du chargement
+				setCurrentWord(Object.keys(wordsMapInit)[Math.floor(Math.random() * Object.keys(wordsMapInit).length)]);
+				setIsLoading(false); // End loading
 			} catch (error) {
 				console.error("Error fetching random words:", error);
 			}
@@ -50,6 +56,9 @@ const Game: React.FC = () => {
 
 	const handleAnswer = (word: string, userAnswer: string) => {
 		const answer = wordsMap[word];
+		console.log("Answer:", answer);
+		console.log("User answer:", userAnswer);
+		console.log("type of answer:", typeof answer);
 		const similarity = myLevenshtein(userAnswer, answer);
 
 		let newScoreWords = { ...scoreWords };
@@ -98,7 +107,7 @@ const Game: React.FC = () => {
 		}
 	};
 
-	if (isLoading) { // Afficher le message de chargement si isLoading est vrai
+	if (isLoading) { // Display loading message if isLoading is true
 		return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
 	}
 

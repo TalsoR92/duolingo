@@ -77,7 +77,7 @@ export async function getRandomWordsFromFile(language: string, count: number): P
 			jsonFilePath = "/duolingo/JSON/vocab_en-fr.json"; // Chemin relatif à la base URL
 			break;
 		case "Ukrainian":
-			jsonFilePath = "/duolingo/JSON/vocab_uk-fr.json"; // Chemin relatif à la base URL
+			jsonFilePath = "/duolingo/JSON/vocab_uk-en.json"; // Chemin relatif à la base URL
 			break;
 		default:
 			throw new Error(`Unsupported language: ${language}.`);
